@@ -410,14 +410,18 @@
                     tanggal: date
                 };
             }
-
+            
             try {
                 if (editingDocId) {
+                    console.log('Melakukan update data...', { id: editingDocId, data });
                     const { error } = await supabase.from(tableName).update(data).eq('id', editingDocId);
                     if (error) throw error;
+                    console.log('Update data berhasil.');
                 } else {
+                    console.log('Melakukan insert data baru...', data);
                     const { error } = await supabase.from(tableName).insert([data]);
                     if (error) throw error;
+                    console.log('Insert data berhasil.');
                 }
                 closeModal();
             } catch (error) {
