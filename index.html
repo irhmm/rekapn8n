@@ -246,7 +246,7 @@
                     tableRows += `
                         <tr class="border-b border-gray-200 hover:bg-gray-50">
                             <td class="py-3">${formatCurrency(item.nominal)}</td>
-                            <td class="py-3">${item.tanggal}</td>
+                            <td class="py-3">${formatDate(item.tanggal)}</td>
                             <td class="py-3">
                                 <button class="text-blue-600 hover:text-blue-800 font-medium edit-btn" data-id="${item.id}">Edit</button>
                                 <button class="text-red-600 hover:text-red-800 font-medium ml-2 delete-btn" data-id="${item.id}">Hapus</button>
@@ -273,7 +273,7 @@
                             <td class="py-3">${item.jobdesk}</td>
                             <td class="py-3">${formatCurrency(item.fee)}</td>
                             <td class="py-3">${item.worker}</td>
-                            <td class="py-3">${item.tanggal}</td>
+                            <td class="py-3">${formatDate(item.tanggal)}</td>
                             <td class="py-3">
                                 <button class="text-blue-600 hover:text-blue-800 font-medium edit-btn" data-id="${item.id}">Edit</button>
                                 <button class="text-red-600 hover:text-red-800 font-medium ml-2 delete-btn" data-id="${item.id}">Hapus</button>
@@ -294,7 +294,7 @@
                     tableRows += `
                         <tr class="border-b border-gray-200 hover:bg-gray-50">
                             <td class="py-3">${formatCurrency(item.nominal)}</td>
-                            <td class="py-3">${item.tanggal}</td>
+                            <td class="py-3">${formatDate(item.tanggal)}</td>
                             <td class="py-3">
                                 <button class="text-blue-600 hover:text-blue-800 font-medium edit-btn" data-id="${item.id}">Edit</button>
                                 <button class="text-red-600 hover:text-red-800 font-medium ml-2 delete-btn" data-id="${item.id}">Hapus</button>
@@ -448,6 +448,15 @@
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }).format(value);
+        };
+        
+        // Fungsi baru untuk memformat tanggal ke format DD-MM-YYYY
+        const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
         };
 
         closeModalBtn.addEventListener('click', closeModal);
