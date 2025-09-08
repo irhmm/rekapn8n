@@ -383,58 +383,82 @@
 
         const handleFormSubmit = async (e) => {
             e.preventDefault();
+            console.log('Form submission triggered.');
             let data = {};
             let tableName = '';
 
             const date = new Date().toISOString().split('T')[0];
 
             if (currentModalType === 'admin') {
+                const nominalValue = document.getElementById('admin-income').value;
+                if (!nominalValue) {
+                    console.error('Error: Nominal Pendapatan Admin tidak boleh kosong.');
+                    return;
+                }
                 tableName = 'admin_income';
                 data = {
-                    nominal: parseInt(document.getElementById('admin-income').value),
+                    nominal: parseInt(nominalValue),
                     tanggal: date
                 };
             } else if (currentModalType === 'worker') {
+                const feeValue = document.getElementById('worker-fee').value;
+                 if (!feeValue) {
+                    console.error('Error: Fee Pendapatan Worker tidak boleh kosong.');
+                    return;
+                }
                 tableName = 'worker_income';
                 data = {
                     code: document.getElementById('worker-code').value,
                     jobdesk: document.getElementById('worker-jobdesk').value,
-                    fee: parseInt(document.getElementById('worker-fee').value),
+                    fee: parseInt(feeValue),
                     worker: document.getElementById('worker-name').value,
                     tanggal: date
                 };
             } else if (currentModalType === 'expense') {
+                const nominalValue = document.getElementById('expense-amount').value;
+                if (!nominalValue) {
+                    console.error('Error: Nominal Pengeluaran tidak boleh kosong.');
+                    return;
+                }
                 tableName = 'expenses';
                 data = {
-                    nominal: parseInt(document.getElementById('expense-amount').value),
+                    nominal: parseInt(nominalValue),
                     tanggal: date
                 };
             }
             
+            console.log('Mengirim data ke Supabase:', data);
+
             try {
                 if (editingDocId) {
-                    console.log('Melakukan update data...', { id: editingDocId, data });
                     const { error } = await supabase.from(tableName).update(data).eq('id', editingDocId);
-                    if (error) throw error;
+                    if (error) {
+                        console.error('Gagal memperbarui data:', error);
+                        return;
+                    }
                     console.log('Update data berhasil.');
                 } else {
-                    console.log('Melakukan insert data baru...', data);
                     const { error } = await supabase.from(tableName).insert([data]);
-                    if (error) throw error;
+                    if (error) {
+                         console.error('Gagal menyimpan data baru:', error);
+                         return;
+                    }
                     console.log('Insert data berhasil.');
                 }
                 closeModal();
             } catch (error) {
-                console.error('Gagal menyimpan data:', error.message);
+                console.error('Terjadi kesalahan saat menyimpan data:', error.message);
             }
         };
 
         const handleDelete = async () => {
             const docId = deleteModalContainer.dataset.docId;
             const tableName = deleteModalContainer.dataset.collectionName;
+            console.log(`Menghapus data ID: ${docId} dari tabel: ${tableName}`);
             try {
                 const { error } = await supabase.from(tableName).delete().eq('id', docId);
                 if (error) throw error;
+                console.log('Data berhasil dihapus.');
             } catch (error) {
                 console.error('Gagal menghapus data:', error.message);
             }
