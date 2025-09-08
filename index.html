@@ -1,0 +1,477 @@
+<!DOCTYPE ahtml>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekap Data Keuangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            width: 280px;
+        }
+        th, td {
+            padding: 1rem;
+        }
+        .active-nav {
+            background-color: #e0f2fe; /* light blue-100 */
+        }
+    </style>
+</head>
+<body class="bg-blue-50 text-gray-900">
+    <!-- Main layout with sidebar -->
+    <div class="flex h-screen bg-gray-50">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar bg-white p-6 shadow-lg rounded-r-xl">
+            <h1 class="text-2xl font-bold text-blue-600 mb-6">Menu</h1>
+            <nav>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" id="nav-admin" data-type="admin" class="nav-link block p-3 rounded-lg text-blue-600 font-semibold transition-colors duration-200 active-nav">
+                            <span class="mr-2">💰</span> Pendapatan Admin
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-worker" data-type="worker" class="nav-link block p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                            <span class="mr-2">🧑‍🔧</span> Pendapatan Worker
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-expense" data-type="expense" class="nav-link block p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                            <span class="mr-2">💸</span> Pengeluaran
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-8">
+            <header class="flex justify-between items-center mb-6 sm:mb-8">
+                <h1 id="page-title" class="text-3xl sm:text-4xl font-bold text-blue-600">Pendapatan Admin</h1>
+                <div class="flex items-center space-x-2">
+                    <span id="date-display" class="text-sm font-medium text-gray-500"></span>
+                </div>
+            </header>
+            
+            <!-- Main data view -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Total:</span>
+                        <span id="total-display" class="text-2xl font-bold text-blue-600">Rp 0</span>
+                    </div>
+                    <button id="add-btn" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors duration-200">Tambah Data</button>
+                </div>
+
+                <div id="data-table-container" class="overflow-x-auto">
+                    <!-- Table will be rendered here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals for forms -->
+    <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg mx-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modal-title" class="text-2xl font-semibold text-blue-600">Tambah Data</h2>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">&times;</button>
+            </div>
+            <form id="data-form">
+                <div id="admin-fields" class="space-y-4 hidden">
+                    <div>
+                        <label for="admin-income" class="block text-sm font-medium text-gray-700">Pendapatan Admin</label>
+                        <input type="number" id="admin-income" placeholder="Nominal" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+                <div id="worker-fields" class="space-y-4 hidden">
+                    <div>
+                        <label for="worker-code" class="block text-sm font-medium text-gray-700">Kode</label>
+                        <input type="text" id="worker-code" placeholder="Code" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="worker-jobdesk" class="block text-sm font-medium text-gray-700">Jobdesk</label>
+                        <input type="text" id="worker-jobdesk" placeholder="Jobdesk" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="worker-fee" class="block text-sm font-medium text-gray-700">Fee</label>
+                        <input type="number" id="worker-fee" placeholder="Fee" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="worker-name" class="block text-sm font-medium text-gray-700">Nama Worker</label>
+                        <input type="text" id="worker-name" placeholder="Worker" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+                <div id="expense-fields" class="space-y-4 hidden">
+                    <div>
+                        <label for="expense-amount" class="block text-sm font-medium text-gray-700">Pengeluaran</label>
+                        <input type="number" id="expense-amount" placeholder="Nominal" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="submit" class="w-full px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Deletion Confirmation Modal -->
+    <div id="delete-modal-container" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm mx-auto text-center">
+            <h2 class="text-xl font-semibold mb-4 text-blue-600">Hapus Data</h2>
+            <p class="mb-6">Apakah Anda yakin ingin menghapus data ini?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors duration-200">Ya, Hapus</button>
+                <button id="cancel-delete-btn" class="px-6 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 transition-colors duration-200">Batal</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        // Impor pustaka Supabase
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        // Ganti URL dan anon key di bawah ini dengan kredensial proyek Supabase Anda
+        const supabaseUrl = 'https://rzquirxwyogpzvqdudea.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cXVpcnh3eW9ncHp2cWR1ZGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg2MzQ0MDcsImV4cCI6MjAzNDIwMDQwN30.29J_s120VvWqJg6lR04U-t-2kF1n9Sg7_vj8D9c8O8E';
+
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        let currentModalType = 'admin'; // Tampilan default
+        let editingDocId = null;
+
+        const modalContainer = document.getElementById('modal-container');
+        const deleteModalContainer = document.getElementById('delete-modal-container');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const dataForm = document.getElementById('data-form');
+        const modalTitle = document.getElementById('modal-title');
+        const adminFields = document.getElementById('admin-fields');
+        const workerFields = document.getElementById('worker-fields');
+        const expenseFields = document.getElementById('expense-fields');
+        const dataTableContainer = document.getElementById('data-table-container');
+        const totalDisplay = document.getElementById('total-display');
+        const dateDisplay = document.getElementById('date-display');
+        const pageTitle = document.getElementById('page-title');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const addBtn = document.getElementById('add-btn');
+
+        const dataCache = {
+            admin: [],
+            worker: [],
+            expense: []
+        };
+
+        // Fungsi untuk mengambil data dan mengatur listener real-time
+        const setupRealtimeListeners = async () => {
+            const getAndRenderData = async (table, type) => {
+                try {
+                    const { data, error } = await supabase.from(table).select('*').order('id', { ascending: true });
+                    if (error) {
+                        console.error('Gagal mengambil data:', error);
+                        return;
+                    }
+                    dataCache[type] = data;
+                    if (currentModalType === type) {
+                        renderTable(type);
+                    }
+                } catch (e) {
+                    console.error('Terjadi kesalahan saat mengambil data:', e);
+                }
+            };
+
+            // Listener untuk perubahan data (real-time)
+            supabase.channel('public:admin_income')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_income' }, payload => {
+                    getAndRenderData('admin_income', 'admin');
+                })
+                .subscribe();
+
+            supabase.channel('public:worker_income')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'worker_income' }, payload => {
+                    getAndRenderData('worker_income', 'worker');
+                })
+                .subscribe();
+
+            supabase.channel('public:expenses')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, payload => {
+                    getAndRenderData('expenses', 'expense');
+                })
+                .subscribe();
+
+            // Ambil data awal saat memuat halaman
+            getAndRenderData('admin_income', 'admin');
+            getAndRenderData('worker_income', 'worker');
+            getAndRenderData('expenses', 'expense');
+        };
+        
+        const showTable = (type) => {
+            currentModalType = type;
+            pageTitle.textContent = getTitle(type);
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active-nav');
+            });
+
+            const activeLink = document.querySelector(`[data-type="${type}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active-nav');
+            }
+            
+            renderTable(type);
+        };
+
+        const renderTable = (type) => {
+            const data = dataCache[type] || [];
+            let total = 0;
+            let tableHeaders = '';
+            let tableRows = '';
+
+            if (type === 'admin') {
+                tableHeaders = `
+                    <tr>
+                        <th class="py-2 text-left font-semibold text-blue-600">Pendapatan</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Tanggal</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Aksi</th>
+                    </tr>
+                `;
+                data.forEach(item => {
+                    total += parseInt(item.nominal);
+                    tableRows += `
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-3">${formatCurrency(item.nominal)}</td>
+                            <td class="py-3">${item.tanggal}</td>
+                            <td class="py-3">
+                                <button class="text-blue-600 hover:text-blue-800 font-medium edit-btn" data-id="${item.id}">Edit</button>
+                                <button class="text-red-600 hover:text-red-800 font-medium ml-2 delete-btn" data-id="${item.id}">Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else if (type === 'worker') {
+                tableHeaders = `
+                    <tr>
+                        <th class="py-2 text-left font-semibold text-blue-600">Code</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Jobdesk</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Fee</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Worker</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Tanggal</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Aksi</th>
+                    </tr>
+                `;
+                data.forEach(item => {
+                    total += parseInt(item.fee);
+                    tableRows += `
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-3">${item.code}</td>
+                            <td class="py-3">${item.jobdesk}</td>
+                            <td class="py-3">${formatCurrency(item.fee)}</td>
+                            <td class="py-3">${item.worker}</td>
+                            <td class="py-3">${item.tanggal}</td>
+                            <td class="py-3">
+                                <button class="text-blue-600 hover:text-blue-800 font-medium edit-btn" data-id="${item.id}">Edit</button>
+                                <button class="text-red-600 hover:text-red-800 font-medium ml-2 delete-btn" data-id="${item.id}">Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else if (type === 'expense') {
+                tableHeaders = `
+                    <tr>
+                        <th class="py-2 text-left font-semibold text-blue-600">Pengeluaran</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Tanggal</th>
+                        <th class="py-2 text-left font-semibold text-blue-600">Aksi</th>
+                    </tr>
+                `;
+                data.forEach(item => {
+                    total += parseInt(item.nominal);
+                    tableRows += `
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-3">${formatCurrency(item.nominal)}</td>
+                            <td class="py-3">${item.tanggal}</td>
+                            <td class="py-3">
+                                <button class="text-blue-600 hover:text-blue-800 font-medium edit-btn" data-id="${item.id}">Edit</button>
+                                <button class="text-red-600 hover:text-red-800 font-medium ml-2 delete-btn" data-id="${item.id}">Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            totalDisplay.textContent = formatCurrency(total);
+            dataTableContainer.innerHTML = `
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-gray-100">
+                        ${tableHeaders}
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        ${tableRows}
+                    </tbody>
+                </table>
+            `;
+
+            dataTableContainer.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const docId = e.target.dataset.id;
+                    const itemToEdit = dataCache[type].find(item => item.id == docId);
+                    openModal(type, docId, itemToEdit);
+                });
+            });
+
+            dataTableContainer.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const docId = e.target.dataset.id;
+                    openDeleteModal(docId, type);
+                });
+            });
+        };
+
+        const getTitle = (type) => {
+            if (type === 'admin') return "Pendapatan Admin";
+            if (type === 'worker') return "Pendapatan Worker";
+            if (type === 'expense') return "Pengeluaran";
+            return "Rekap Data Keuangan";
+        };
+
+        const openModal = (type, docId = null, data = null) => {
+            currentModalType = type;
+            editingDocId = docId;
+            modalContainer.classList.remove('hidden');
+            
+            dataForm.reset();
+            modalTitle.textContent = docId ? 'Edit Data' : 'Tambah Data';
+
+            adminFields.classList.add('hidden');
+            workerFields.classList.add('hidden');
+            expenseFields.classList.add('hidden');
+            
+            if (type === 'admin') {
+                adminFields.classList.remove('hidden');
+                if (data) document.getElementById('admin-income').value = data.nominal;
+            } else if (type === 'worker') {
+                workerFields.classList.remove('hidden');
+                if (data) {
+                    document.getElementById('worker-code').value = data.code;
+                    document.getElementById('worker-jobdesk').value = data.jobdesk;
+                    document.getElementById('worker-fee').value = data.fee;
+                    document.getElementById('worker-name').value = data.worker;
+                }
+            } else if (type === 'expense') {
+                expenseFields.classList.remove('hidden');
+                if (data) document.getElementById('expense-amount').value = data.nominal;
+                
+            }
+        };
+
+        const openDeleteModal = (docId, type) => {
+            let collectionName = type === 'admin' ? 'admin_income' : (type === 'worker' ? 'worker_income' : 'expenses');
+            deleteModalContainer.dataset.docId = docId;
+            deleteModalContainer.dataset.collectionName = collectionName;
+            deleteModalContainer.classList.remove('hidden');
+        };
+
+        const closeModal = () => {
+            modalContainer.classList.add('hidden');
+            editingDocId = null;
+        };
+
+        const handleFormSubmit = async (e) => {
+            e.preventDefault();
+            let data = {};
+            let tableName = '';
+
+            const date = new Date().toISOString().split('T')[0];
+
+            if (currentModalType === 'admin') {
+                tableName = 'admin_income';
+                data = {
+                    nominal: parseInt(document.getElementById('admin-income').value),
+                    tanggal: date
+                };
+            } else if (currentModalType === 'worker') {
+                tableName = 'worker_income';
+                data = {
+                    code: document.getElementById('worker-code').value,
+                    jobdesk: document.getElementById('worker-jobdesk').value,
+                    fee: parseInt(document.getElementById('worker-fee').value),
+                    worker: document.getElementById('worker-name').value,
+                    tanggal: date
+                };
+            } else if (currentModalType === 'expense') {
+                tableName = 'expenses';
+                data = {
+                    nominal: parseInt(document.getElementById('expense-amount').value),
+                    tanggal: date
+                };
+            }
+
+            try {
+                if (editingDocId) {
+                    const { error } = await supabase.from(tableName).update(data).eq('id', editingDocId);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabase.from(tableName).insert([data]);
+                    if (error) throw error;
+                }
+                closeModal();
+            } catch (error) {
+                console.error('Gagal menyimpan data:', error.message);
+            }
+        };
+
+        const handleDelete = async () => {
+            const docId = deleteModalContainer.dataset.docId;
+            const tableName = deleteModalContainer.dataset.collectionName;
+            try {
+                const { error } = await supabase.from(tableName).delete().eq('id', docId);
+                if (error) throw error;
+            } catch (error) {
+                console.error('Gagal menghapus data:', error.message);
+            }
+            deleteModalContainer.classList.add('hidden');
+        };
+
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        };
+
+        closeModalBtn.addEventListener('click', closeModal);
+        window.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                closeModal();
+            }
+        });
+        dataForm.addEventListener('submit', handleFormSubmit);
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showTable(e.target.dataset.type);
+            });
+        });
+
+        addBtn.addEventListener('click', () => openModal(currentModalType));
+
+        confirmDeleteBtn.addEventListener('click', handleDelete);
+        cancelDeleteBtn.addEventListener('click', () => deleteModalContainer.classList.add('hidden'));
+
+        // Initial setup
+        window.onload = () => {
+            setupRealtimeListeners();
+            const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            dateDisplay.textContent = today;
+        };
+
+    </script>
+</body>
+</html>
