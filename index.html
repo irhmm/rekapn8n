@@ -135,9 +135,10 @@
         // Impor pustaka Supabase
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-        // Menggunakan variabel lingkungan yang disuntikkan oleh Netlify untuk keamanan.
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        // Untuk menjalankan di Canvas, kita perlu menggunakan URL dan Kunci secara langsung.
+        // Saat deployment ke Netlify, pastikan Anda menggunakan variabel lingkungan.
+        const supabaseUrl = 'https://rzquirxwyogpzvqdudea.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cXVpcnh3eW9ncHp2cWR1ZGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg2MzQ0MDcsImV4cCI6MjAzNDIwMDQwN30.29J_s120VvWqJg6lR04U-t-2kF1n9Sg7_vj8D9c8O8E';
 
         const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
